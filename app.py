@@ -1,47 +1,46 @@
-
 import streamlit as st
 import pandas as pd
 import joblib
 import os
 
-# Judul aplikasi
-st.title("Analisis Dampak Lingkungan Urban Heat Island")
+# Application title
+st.title("City Temperature Band Classifier")
 
-# Cek apakah file model tersedia
+# Check if the model file is available
 model_path = "random_forest_classifier.pkl"
 if not os.path.exists(model_path):
-    st.error(f"Model file '{model_path}' tidak ditemukan. Pastikan file ini berada di folder yang sama.")
+    st.error(f"Model file '{model_path}' not found. Please ensure this file is in the same folder.")
     st.stop()
 
-# Load model
+# Load the model
 model = joblib.load(model_path)
 
-# Input dari pengguna
-st.sidebar.header("Input Data Lingkungan")
+# User input
+st.sidebar.header("Environmental Data Input")
 def user_input_features():
-    suhu = st.sidebar.slider("Suhu (°C)", 20.0, 45.0, 30.0)
-    kelembaban = st.sidebar.slider("Kelembaban (%)", 10.0, 100.0, 50.0)
-    kecepatan_angin = st.sidebar.slider("Kecepatan Angin (m/s)", 0.0, 15.0, 5.0)
-    polusi = st.sidebar.slider("Polusi (PM2.5)", 0.0, 300.0, 50.0)
+    temperature = st.sidebar.slider("Temperature (°C)", 20.0, 45.0, 30.0)
+    humidity = st.sidebar.slider("Humidity (%)", 10.0, 100.0, 50.0)
+    wind_speed = st.sidebar.slider("Wind Speed (m/s)", 0.0, 15.0, 5.0)
+    pollution = st.sidebar.slider("Pollution (PM2.5)", 0.0, 300.0, 50.0)
     data = {
-        "suhu": suhu,
-        "kelembaban": kelembaban,
-        "kecepatan_angin": kecepatan_angin,
-        "polusi": polusi
+        "temperature": temperature,
+        "humidity": humidity,
+        "wind_speed": wind_speed,
+        "pollution": pollution
     }
     return pd.DataFrame([data])
 
 input_df = user_input_features()
 
-# Prediksi
+# Prediction
 prediction = model.predict(input_df)
 prediction_proba = model.predict_proba(input_df)
 
-# Output prediksi
-st.subheader("Hasil Prediksi")
-kelas = ["Rendah", "Sedang", "Tinggi"]  # Sesuaikan label klasifikasi
-st.write(f"Kategori Dampak: **{kelas[prediction[0]]}**")
+# Prediction output
+st.subheader("Prediction Results")
+categories = ["Low", "Medium", "High"]  # Adjust classification labels
+st.write(f"Impact Category: **{categories[prediction[0]]}**")
 
-st.subheader("Probabilitas")
-proba_df = pd.DataFrame(prediction_proba, columns=kelas)
+st.subheader("Probabilities")
+proba_df = pd.DataFrame(prediction_proba, columns=categories)
 st.write(proba_df)
